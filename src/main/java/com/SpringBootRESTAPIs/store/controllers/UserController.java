@@ -3,6 +3,8 @@ package com.SpringBootRESTAPIs.store.controllers;
 import com.SpringBootRESTAPIs.store.entities.User;
 import com.SpringBootRESTAPIs.store.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -20,7 +22,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}") // /users/{id}
-    public User getUser(@PathVariable("id") Long id){
-        return userRepository.findById(id).orElse(null);
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
+        }
+//        return new ResponseEntity<>(user, HttpStatus.OK);
+        return ResponseEntity.ok(user);
     }
 }

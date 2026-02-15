@@ -1,5 +1,6 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
+import com.SpringBootRESTAPIs.store.dtos.UserDto;
 import com.SpringBootRESTAPIs.store.entities.User;
 import com.SpringBootRESTAPIs.store.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -17,18 +18,22 @@ public class UserController {
 //    @RequestMapping(path = "/users")
     // These above 2 lines are the same as bellow GetMapping
     @GetMapping // /users
-    public Iterable<User> getAllUsers() {
-        return userRepository.findAll();
+    public Iterable<UserDto> getAllUsers() { // we use UserDto instead of User to hide some unnecessary fields(security) and for better serialization/deserialization
+        return userRepository.findAll() // userRepository interface should extend JpaRepository (for findAll) to return a List to map with stream to UserDto
+                .stream()
+                .map(user -> new UserDto(user.getId(), user.getName(), user.getEmail()))
+                .toList();
     }
 
     @GetMapping("/{id}") // /users/{id}
-    public ResponseEntity<User> getUser(@PathVariable("id") Long id){
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") Long id){
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
 //            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             return ResponseEntity.notFound().build();
         }
+        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
 //        return new ResponseEntity<>(user, HttpStatus.OK);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userDto);
     }
 }

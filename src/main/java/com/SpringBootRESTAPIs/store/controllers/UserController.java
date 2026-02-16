@@ -5,9 +5,12 @@ import com.SpringBootRESTAPIs.store.entities.User;
 import com.SpringBootRESTAPIs.store.mappers.UserMapper;
 import com.SpringBootRESTAPIs.store.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @AllArgsConstructor
 @RestController
@@ -20,8 +23,10 @@ public class UserController {
 //    @RequestMapping(path = "/users")
     // These above 2 lines are the same as bellow GetMapping
     @GetMapping // /users
-    public Iterable<UserDto> getAllUsers() { // we use UserDto instead of User to hide some unnecessary fields(security) and for better serialization/deserialization
-        return userRepository.findAll() // userRepository interface should extend JpaRepository (for findAll) to return a List to map with stream to UserDto
+    public Iterable<UserDto> getAllUsers(@RequestParam(required = false, defaultValue = "", name = "sort") String sortBy) { // we use UserDto instead of User to hide some unnecessary fields(security) and for better serialization/deserialization
+        if(!Set.of("name", "email").contains(sortBy))
+            sortBy = "name";
+        return userRepository.findAll(Sort.by(sortBy)) // userRepository interface should extend JpaRepository (for findAll) to return a List to map with stream to UserDto
                 .stream()
                 .map(userMapper::toDto)
 //                .map(user -> new UserDto(user.getId(), user.getName(), user.getEmail()))

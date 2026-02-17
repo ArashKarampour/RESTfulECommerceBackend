@@ -1,5 +1,6 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
+import com.SpringBootRESTAPIs.store.dtos.RegisterUserRequest;
 import com.SpringBootRESTAPIs.store.dtos.UserDto;
 import com.SpringBootRESTAPIs.store.entities.User;
 import com.SpringBootRESTAPIs.store.mappers.UserMapper;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Set;
 
@@ -43,5 +45,16 @@ public class UserController {
 //        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
 //        return new ResponseEntity<>(user, HttpStatus.OK);
         return ResponseEntity.ok(userMapper.toDto(user));
+    }
+
+    @PostMapping
+    public ResponseEntity<UserDto> createUser (
+            @RequestBody RegisterUserRequest request,
+            UriComponentsBuilder uriBuilder
+    ){
+        var user = userMapper.toEntity(request);
+        var savedUserDto = userMapper.toDto(userRepository.save(user));
+        var uri = uriBuilder.path("/users/{id}").buildAndExpand(savedUserDto.getId()).toUri(); // this is necessary to set the location header of the response to the uri of the created user, so that the client can easily access the created user by using the location header.
+        return ResponseEntity.created(uri).body(savedUserDto); // this will return a response with status code 201 and the location header will be set to the uri of the created user and the body will be the created user dto.
     }
 }

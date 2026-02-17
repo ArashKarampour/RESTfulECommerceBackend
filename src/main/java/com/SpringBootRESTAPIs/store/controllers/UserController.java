@@ -1,6 +1,7 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
 import com.SpringBootRESTAPIs.store.dtos.RegisterUserRequest;
+import com.SpringBootRESTAPIs.store.dtos.UpdatePasswordRequest;
 import com.SpringBootRESTAPIs.store.dtos.UpdateUserRequest;
 import com.SpringBootRESTAPIs.store.dtos.UserDto;
 import com.SpringBootRESTAPIs.store.entities.User;
@@ -84,5 +85,26 @@ public class UserController {
 //        userRepository.deleteById(user.getId());
         userRepository.delete(user);
         return ResponseEntity.noContent().build(); // this will return a response with status code 204 and no content in the body, which is the standard response for a successful delete operation.
+    }
+
+    // action based update to update the password of the user, we can create a separate endpoint for this, because updating the password is a different action than updating the other fields of the user, and it may require different validation and security measures.
+    // we have to provide the old password in the request to verify that the user is the owner of the account and to prevent unauthorized password changes, and we also have to validate the new password to ensure that it meets the security requirements if necessary (e.g. minimum length, complexity, etc.)
+    // so we use postmapping instead of putmapping because we are not updating the whole user entity, we are just performing an action to update the password, and this action is not idempotent, because if we call this endpoint multiple times with the same old password and new password, it will change the password only the first time, and it will return an error for the subsequent calls, because the old password will no longer be valid after the first call.
+    @PostMapping("/{id}/change-password")
+    public ResponseEntity<Void> updatePassword(
+            @PathVariable Long id,
+            @RequestBody UpdatePasswordRequest request
+    )
+    {
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!user.getPassword().equals(request.getOldPassword())) { // this is a simple password check, in a real application we should hash the passwords and use a secure password hashing algorithm to store the passwords in the database and to compare the old password with the stored password.
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // this will return a response with status code 401 and no content in the body, which is the standard response for an unauthorized request.
+        }
+        user.setPassword(request.getNewPassword());
+        userRepository.save(user);
+        return ResponseEntity.noContent().build(); // this will return a response with status code 204 and no content in the body, which is the standard response for a successful update operation when there is no content to return in the body.
     }
 }

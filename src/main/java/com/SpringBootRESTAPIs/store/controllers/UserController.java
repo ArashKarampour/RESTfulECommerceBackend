@@ -74,4 +74,15 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toDto(user));
 
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+//        userRepository.deleteById(user.getId());
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build(); // this will return a response with status code 204 and no content in the body, which is the standard response for a successful delete operation.
+    }
 }

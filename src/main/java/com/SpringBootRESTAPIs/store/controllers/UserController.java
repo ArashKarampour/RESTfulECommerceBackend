@@ -1,6 +1,7 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
 import com.SpringBootRESTAPIs.store.dtos.RegisterUserRequest;
+import com.SpringBootRESTAPIs.store.dtos.UpdateUserRequest;
 import com.SpringBootRESTAPIs.store.dtos.UserDto;
 import com.SpringBootRESTAPIs.store.entities.User;
 import com.SpringBootRESTAPIs.store.mappers.UserMapper;
@@ -56,5 +57,21 @@ public class UserController {
         var savedUserDto = userMapper.toDto(userRepository.save(user));
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(savedUserDto.getId()).toUri(); // this is necessary to set the location header of the response to the uri of the created user, so that the client can easily access the created user by using the location header.
         return ResponseEntity.created(uri).body(savedUserDto); // this will return a response with status code 201 and the location header will be set to the uri of the created user and the body will be the created user dto.
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser (
+            @PathVariable Long id,
+            @RequestBody UpdateUserRequest request
+    ){
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        userMapper.update(request, user); // this will update the user entity with the values from the request, but it will not save the updated user to the database, so we need to save it after updating it.
+        userRepository.save(user);
+
+        return ResponseEntity.ok(userMapper.toDto(user));
+
     }
 }

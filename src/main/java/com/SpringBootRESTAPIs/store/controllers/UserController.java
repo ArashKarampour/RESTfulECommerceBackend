@@ -112,16 +112,16 @@ public class UserController {
         return ResponseEntity.noContent().build(); // this will return a response with status code 204 and no content in the body, which is the standard response for a successful update operation when there is no content to return in the body.
     }
 
-    // handling MethodArgumentNotValidException of the validation errors of the request body(see post method), we return appropriate validation errors in the body.
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleMethodArgumentValidationErrors(
-            MethodArgumentNotValidException exception
-    ){
-        Map<String, String> errors = new HashMap<String, String>();
-        exception.getBindingResult().getFieldErrors().forEach((error) -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-    }
+//    // handling MethodArgumentNotValidException of the validation errors of the request body(see post method), we return appropriate validation errors in the body.
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Map<String, String>> handleMethodArgumentValidationErrors(
+//            MethodArgumentNotValidException exception
+//    ){
+//        Map<String, String> errors = new HashMap<String, String>();
+//        exception.getBindingResult().getFieldErrors().forEach((error) -> {
+//            errors.put(error.getField(), error.getDefaultMessage());
+//        });
+//
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+//    }
 }

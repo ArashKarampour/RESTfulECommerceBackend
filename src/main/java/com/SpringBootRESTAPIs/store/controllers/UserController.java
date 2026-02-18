@@ -54,10 +54,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser (
+    public ResponseEntity<?> createUser ( // we use wildcard ? as the response entity type because we may return different types of responses, for example if the email is already registered we will return a response with status code 400 and a body with the validation error message, and if the user is created successfully we will return a response with status code 201 and a body with the created user dto, so we can't specify a specific type for the response entity, and using wildcard ? allows us to return different types of responses without having to specify a specific type for the response entity.
             @Valid @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ){
+        if (userRepository.existsByEmail(request.getEmail())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("email", "Email is already registered!"));
+        }
+
         var user = userMapper.toEntity(request);
         var savedUserDto = userMapper.toDto(userRepository.save(user));
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(savedUserDto.getId()).toUri(); // this is necessary to set the location header of the response to the uri of the created user, so that the client can easily access the created user by using the location header.

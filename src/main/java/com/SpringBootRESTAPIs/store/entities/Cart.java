@@ -22,7 +22,7 @@ public class Cart {
     @Column(name = "date_created", insertable = false, updatable = false) // Automatically set by the database so we don't insert or update it manually
     private LocalDate dateCreated;
 
-    @OneToMany(mappedBy = "cart")
+    @OneToMany(mappedBy = "cart", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private Set<CartItem> cartItems = new LinkedHashSet<>();
 
 }

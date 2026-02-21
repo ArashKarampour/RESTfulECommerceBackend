@@ -3,6 +3,7 @@ package com.SpringBootRESTAPIs.store.controllers;
 import com.SpringBootRESTAPIs.store.dtos.AddItemToCartRequest;
 import com.SpringBootRESTAPIs.store.dtos.CartDto;
 import com.SpringBootRESTAPIs.store.dtos.CartItemDto;
+import com.SpringBootRESTAPIs.store.dtos.UpdateCartItemRequest;
 import com.SpringBootRESTAPIs.store.entities.Cart;
 import com.SpringBootRESTAPIs.store.entities.CartItem;
 import com.SpringBootRESTAPIs.store.mappers.CartMapper;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -78,5 +80,33 @@ public class CartController {
             return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(cartMapper.toDto(cart));
+    }
+
+    @PutMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<?> updateCartItem(
+            @PathVariable UUID cartId,
+            @PathVariable Long productId,
+            @Valid @RequestBody UpdateCartItemRequest request
+    ){
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+        if(cart == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "Cart was not found!")
+            );
+
+        var cartItem = cart.getCartItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+
+        if(cartItem == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "Product was not found in the Cart!")
+            );
+
+        cartItem.setQuantity(request.getQuantity());
+        cartRepository.save(cart); // this will also save the cartItem because of the cascade settings
+
+        return ResponseEntity.ok(cartMapper.toDto(cartItem));
     }
 }

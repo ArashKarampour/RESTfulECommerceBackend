@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CartMapper {
+    @Mapping(target = "items", source = "cartItems") // if the fields names are the same we don't need to specify the source and target, but in this case, the field names are different so we need to specify the source and target.
+    @Mapping(target = "totalPrice", expression = "java(cart.getTotalPrice())")
     CartDto toDto(Cart cart);
     @Mapping(target = "totalPrice", expression = "java(cartItem.getTotalPrice())") // This is how we can map a field that doesn't exist in the entity but is calculated based on other fields. In this case, we are calling the getTotalPrice() method of the CartItem entity to calculate the totalPrice for that cartItem dto.
     CartItemDto toDto(CartItem cartItem);

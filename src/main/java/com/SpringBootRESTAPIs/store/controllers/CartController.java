@@ -44,7 +44,7 @@ public class CartController {
             @PathVariable UUID id,
             @Valid @RequestBody AddItemToCartRequest request
     ){
-        var cart = cartRepository.findById(id).orElse(null);
+        var cart = cartRepository.getCartWithItems(id).orElse(null);
         if(cart == null)
             return ResponseEntity.notFound().build();
 
@@ -69,5 +69,14 @@ public class CartController {
         var cartItemDto = cartMapper.toDto(cartItem);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(cartItemDto); // here we didn't set the uri location for simplicity.
+    }
+
+    @GetMapping("/{cartId}")
+    public ResponseEntity<CartDto> getCart(@PathVariable UUID cartId){
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+        if(cart == null)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(cartMapper.toDto(cart));
     }
 }

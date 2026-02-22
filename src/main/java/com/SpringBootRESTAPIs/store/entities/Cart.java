@@ -61,4 +61,8 @@ public class Cart {
         }
 
     }
+
+    public void clearCart(){
+        this.cartItems.clear(); // this will remove all the cartItems from the cart's cartItems set, and because of the orphanRemoval = true setting in the Cart entity class, this will also delete all the cartItems from the database when we save the cart.
+    }
 }

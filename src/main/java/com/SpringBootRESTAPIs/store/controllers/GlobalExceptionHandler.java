@@ -1,5 +1,7 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
+import com.SpringBootRESTAPIs.store.exceptions.CartNotFoundException;
+import com.SpringBootRESTAPIs.store.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,5 +24,15 @@ public class GlobalExceptionHandler {
         });
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(CartNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCartNotFoundException(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Cart not found!"));
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleProductNotFoundException(){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Product not found in the cart!"));
     }
 }

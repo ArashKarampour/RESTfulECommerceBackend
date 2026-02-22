@@ -97,4 +97,21 @@ public class CartController {
 
         return ResponseEntity.ok(cartMapper.toDto(cartItem));
     }
+
+    @DeleteMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<?> deleteCartItem(
+            @PathVariable UUID cartId,
+            @PathVariable Long productId
+    ) {
+        var cart = cartRepository.getCartWithItems(cartId).orElse(null);
+        if (cart == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "Cart was not found!")
+            );
+        // we will not check if the product exists in the cart or not, because the removeItem method in the Cart entity class will handle that, and if the product does not exist in the cart it will simply do nothing, so we can just call the removeItem method without checking if the product exists in the cart or not.
+        cart.removeItem(productId);
+        cartRepository.save(cart);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

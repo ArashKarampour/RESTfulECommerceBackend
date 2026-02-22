@@ -54,17 +54,8 @@ public class CartController {
         if(product == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        // business logic to add the item to the cart
-        var cartItem = cart.getCartItems().stream().filter(item -> item.getProduct().getId().equals(request.getProductId())).findFirst().orElse(null);
-        if(cartItem == null){
-            cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setProduct(product);
-            cartItem.setQuantity(1);
-            cart.getCartItems().add(cartItem);
-        } else {
-            cartItem.setQuantity(cartItem.getQuantity() + 1); // cart item already exists, so we just increase the quantity by 1. and this cartItem will be automatically get updated in the cart object's cartItems set because it's an object reference (catItem with a reference in cartItems object).
-        }
+        // business logic to add the item to the cart (moved to Cart entity class based on Information Expert Principle in OOP and DDD principles, because the Cart entity is the one that has the information about the cart items and how to add them, so we delegate the responsibility of adding an item to the cart to the Cart entity class: see addItem method in Cart entity class)
+        var cartItem = cart.addItem(product);
 
         cartRepository.save(cart); // this will also save the cartItem because of the cascade settings in the Cart entity. (considering cart as root aggregate based on DDD principles (cartItem is a child entity of cart and cannot exist without a cart, so we can cascade the save operation from cart to cartItem))
 
@@ -94,10 +85,7 @@ public class CartController {
                     Map.of("error", "Cart was not found!")
             );
 
-        var cartItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst()
-                .orElse(null);
+        var cartItem = cart.getItem(productId);
 
         if(cartItem == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(

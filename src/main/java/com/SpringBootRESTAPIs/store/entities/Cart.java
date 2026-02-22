@@ -32,4 +32,24 @@ public class Cart {
                 .reduce(BigDecimal.ZERO, BigDecimal::add); // sum up all the total prices to get the total price for the cart
     }
 
+    public CartItem getItem(Long productId){
+        return this.getCartItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public CartItem addItem(Product product){
+        var cartItem = this.getItem(product.getId());
+        if(cartItem == null){
+            cartItem = new CartItem();
+            cartItem.setCart(this);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(1);
+            cartItems.add(cartItem);
+        } else {
+            cartItem.setQuantity(cartItem.getQuantity() + 1); // cart item already exists, so we just increase the quantity by 1. and this cartItem will be automatically get updated in the cart object's cartItems set because it's an object reference (catItem with a reference in cartItems object).
+        }
+        return cartItem;
+    }
 }

@@ -18,7 +18,7 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() { // this method will be used to hash passwords before saving them to the database, and to compare the hashed password with the plain text password when logging in, we use BCryptPasswordEncoder which is a strong hashing algorithm that is widely used in the industry for password hashing, it also adds a salt to the password before hashing it to protect against rainbow table attacks, and it is also computationally expensive which makes it resistant to brute force attacks.
         return new BCryptPasswordEncoder();
-    }
+    } // how this works under the hood by dependency injection system of the Spring framework: https://chatgpt.com/share/69a060dc-9168-8002-9dcb-27be9f5d62c5
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(c -> c
                         .requestMatchers("/carts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users","/auth/login").permitAll()
                         // Swagger
                         .requestMatchers(
                                 "/swagger-ui.html",

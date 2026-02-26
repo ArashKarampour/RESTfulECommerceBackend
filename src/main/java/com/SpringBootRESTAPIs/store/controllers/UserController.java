@@ -1,10 +1,6 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
-import com.SpringBootRESTAPIs.store.dtos.RegisterUserRequest;
-import com.SpringBootRESTAPIs.store.dtos.UpdatePasswordRequest;
-import com.SpringBootRESTAPIs.store.dtos.UpdateUserRequest;
-import com.SpringBootRESTAPIs.store.dtos.UserDto;
-import com.SpringBootRESTAPIs.store.entities.User;
+import com.SpringBootRESTAPIs.store.dtos.*;
 import com.SpringBootRESTAPIs.store.mappers.UserMapper;
 import com.SpringBootRESTAPIs.store.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -13,11 +9,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 

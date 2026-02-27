@@ -1,6 +1,8 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
+import com.SpringBootRESTAPIs.store.dtos.JwtResponse;
 import com.SpringBootRESTAPIs.store.dtos.LoginUserRequest;
+import com.SpringBootRESTAPIs.store.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,9 +20,10 @@ public class AuthController {
 //    private final UserRepository userRepository;
 //    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(
+    public ResponseEntity<JwtResponse> loginUser(
             @Valid @RequestBody LoginUserRequest request
     ) {
 //        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
@@ -34,7 +37,9 @@ public class AuthController {
                         request.getPassword()
                 )
         );
-        return ResponseEntity.ok().build();
+
+        var token = jwtService.generateToken(request.getEmail());
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 
     @ExceptionHandler(BadCredentialsException.class) // this annotation is used to handle the exception thrown by the authentication manager when the credentials are invalid, and to return a response with status code 401 and no body, which is the standard response for an unauthorized request.(instead of returning 403)

@@ -42,6 +42,14 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
+    @PostMapping("/validate")
+    public boolean validate(@RequestHeader("Authorization") String authHeader) {
+
+        System.out.println("validate called");
+        var token = authHeader.substring("Bearer ".length());
+        return jwtService.validateToken(token);
+    }
+
     @ExceptionHandler(BadCredentialsException.class) // this annotation is used to handle the exception thrown by the authentication manager when the credentials are invalid, and to return a response with status code 401 and no body, which is the standard response for an unauthorized request.(instead of returning 403)
     public ResponseEntity<Void> handleBadCredentials() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

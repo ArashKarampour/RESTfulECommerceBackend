@@ -2,6 +2,9 @@ package com.SpringBootRESTAPIs.store.controllers;
 
 import com.SpringBootRESTAPIs.store.dtos.JwtResponse;
 import com.SpringBootRESTAPIs.store.dtos.LoginUserRequest;
+import com.SpringBootRESTAPIs.store.dtos.UserDto;
+import com.SpringBootRESTAPIs.store.mappers.UserMapper;
+import com.SpringBootRESTAPIs.store.repositories.UserRepository;
 import com.SpringBootRESTAPIs.store.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -17,10 +21,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-//    private final UserRepository userRepository;
+    private final UserRepository userRepository;
 //    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserMapper userMapper;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> loginUser(
@@ -48,6 +53,18 @@ public class AuthController {
         System.out.println("validate called");
         var token = authHeader.substring("Bearer ".length());
         return jwtService.validateToken(token);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> me(){
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var email = (String) authentication.getPrincipal();
+
+        var user = userRepository.findByEmail(email).orElse(null);
+        if(user == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @ExceptionHandler(BadCredentialsException.class) // this annotation is used to handle the exception thrown by the authentication manager when the credentials are invalid, and to return a response with status code 401 and no body, which is the standard response for an unauthorized request.(instead of returning 403)

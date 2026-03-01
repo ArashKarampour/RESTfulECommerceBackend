@@ -73,4 +73,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+    // to read more about the security architecture of spring boot see this: https://docs.spring.io/spring-security/reference/servlet/architecture.html
 }

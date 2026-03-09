@@ -14,8 +14,18 @@ import java.util.Date;
 public class JwtService {
     @Value("${spring.jwt.secret}")
     private String secret;
-    public String generateToken(String email){
-        final long tokenExpiration = 86400; // 1 day in seconds
+
+    public String generateAccessToken(String email){
+        final long tokenExpiration = 300L; // 5 Min in seconds
+        return generateToken(email, tokenExpiration);
+    }
+
+    public String generateRefreshToken(String email){
+        final long tokenExpiration = 604800L; // 7 days in seconds
+        return generateToken(email, tokenExpiration);
+    }
+
+    private String generateToken(String email, long tokenExpiration) {
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())

@@ -67,6 +67,18 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(accessToken));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refreshToken(
+           @CookieValue(value = "refreshToken") String refreshToken) {
+        if (!jwtService.validateToken(refreshToken))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        var email = jwtService.getEmailFromToken(refreshToken);
+        var accessToken = jwtService.generateAccessToken(email);
+
+        return ResponseEntity.ok(new JwtResponse(accessToken));
+    }
+
     @PostMapping("/validate")
     public boolean validate(@RequestHeader("Authorization") String authHeader) {
 

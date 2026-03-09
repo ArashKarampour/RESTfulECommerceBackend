@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -60,7 +61,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(c -> c
                         .requestMatchers("/carts/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users","/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users","/auth/login", "/auth/refresh").permitAll()
                         // Swagger
                         .requestMatchers(
                                 "/swagger-ui.html",
@@ -69,8 +70,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // this will add our jwt filter before the first filter in springboot filter chain. so every other path other than above paths needs to be authenticated with a valid jwt token. To test, test /auth/validate with a valid Authorization header.
-
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // this will add our jwt filter before the first filter in springboot filter chain. so every other path other than above paths needs to be authenticated with a valid jwt token. To test, test /auth/validate with a valid Authorization header.
+                .exceptionHandling(c ->
+                        c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))); // this will return a response with status code 401 and no body when an unauthenticated user tries to access a protected resource, which is the standard response for an unauthorized request. // this will be the default behavior for all the protected endpoints, so we don't have to handle this in each endpoint separately, and we can also customize the response body if we want to by implementing our own AuthenticationEntryPoint and returning a custom response body with the error message, but for simplicity we will just return a response with status code 401 and no body.
         return http.build();
     }
     // to read more about the security architecture of spring boot see this: https://docs.spring.io/spring-security/reference/servlet/architecture.html

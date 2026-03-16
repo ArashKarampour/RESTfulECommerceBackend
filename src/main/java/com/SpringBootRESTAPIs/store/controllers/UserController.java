@@ -1,6 +1,7 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
 import com.SpringBootRESTAPIs.store.dtos.*;
+import com.SpringBootRESTAPIs.store.entities.Role;
 import com.SpringBootRESTAPIs.store.mappers.UserMapper;
 import com.SpringBootRESTAPIs.store.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -60,6 +61,7 @@ public class UserController {
 
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword())); // hashing the password before saving it to the database, this is a security measure to protect the user's password in case of a data breach, and it also allows us to compare the hashed password with the hashed password stored in the database when the user tries to log in or change their password.
+        user.setRole(Role.USER);
         var savedUserDto = userMapper.toDto(userRepository.save(user));
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(savedUserDto.getId()).toUri(); // this is necessary to set the location header of the response to the uri of the created user, so that the client can easily access the created user by using the location header.
         return ResponseEntity.created(uri).body(savedUserDto); // this will return a response with status code 201 and the location header will be set to the uri of the created user and the body will be the created user dto.

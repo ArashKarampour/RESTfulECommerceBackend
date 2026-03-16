@@ -57,8 +57,10 @@ public class AuthController {
                 )
         );
 
-        var accessToken = jwtService.generateAccessToken(request.getEmail());
-        var refreshToken = jwtService.generateRefreshToken(request.getEmail());
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
         var cookie = getCookie(refreshToken);
 
@@ -73,8 +75,9 @@ public class AuthController {
         if (!jwtService.validateToken(refreshToken))
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        var email = jwtService.getEmailFromToken(refreshToken);
-        var accessToken = jwtService.generateAccessToken(email);
+        var userId = jwtService.getIdFromToken(refreshToken);
+        var user = userRepository.findById(userId).orElseThrow();
+        var accessToken = jwtService.generateAccessToken(user);
 
         return ResponseEntity.ok(new JwtResponse(accessToken));
     }
@@ -90,9 +93,9 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> me(){
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var email = (String) authentication.getPrincipal();
+        var userId = (Long) authentication.getPrincipal();
 
-        var user = userRepository.findByEmail(email).orElse(null);
+        var user = userRepository.findById(userId).orElse(null);
         if(user == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 

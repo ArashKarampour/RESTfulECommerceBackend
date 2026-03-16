@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         var authentication = new UsernamePasswordAuthenticationToken( // first constructor of UsernamePasswordAuthenticationToken is for login(unauthenticated users) and the second one for authenticated users.
-                jwtService.getEmailFromToken(token),
+                jwtService.getIdFromToken(token),
                 null,
                 null
                 );

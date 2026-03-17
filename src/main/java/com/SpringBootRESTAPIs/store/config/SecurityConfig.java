@@ -1,5 +1,6 @@
 package com.SpringBootRESTAPIs.store.config;
 
+import com.SpringBootRESTAPIs.store.entities.Role;
 import com.SpringBootRESTAPIs.store.filters.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -62,6 +63,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(c -> c
                         .requestMatchers("/carts/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users","/auth/login", "/auth/refresh").permitAll()
+                        .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                         // Swagger
                         .requestMatchers(
                                 "/swagger-ui.html",
@@ -71,8 +73,13 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // this will add our jwt filter before the first filter in springboot filter chain. so every other path other than above paths needs to be authenticated with a valid jwt token. To test, test /auth/validate with a valid Authorization header.
-                .exceptionHandling(c ->
-                        c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))); // this will return a response with status code 401 and no body when an unauthenticated user tries to access a protected resource, which is the standard response for an unauthorized request. // this will be the default behavior for all the protected endpoints, so we don't have to handle this in each endpoint separately, and we can also customize the response body if we want to by implementing our own AuthenticationEntryPoint and returning a custom response body with the error message, but for simplicity we will just return a response with status code 401 and no body.
+                .exceptionHandling(c -> {
+                    c.authenticationEntryPoint(
+                            new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)); // this will return a response with status code 401 and no body when an unauthenticated user tries to access a protected resource, which is the standard response for an unauthorized request. // this will be the default behavior for all the protected endpoints, so we don't have to handle this in each endpoint separately, and we can also customize the response body if we want to by implementing our own AuthenticationEntryPoint and returning a custom response body with the error message, but for simplicity we will just return a response with status code 401 and no body.
+
+                    c.accessDeniedHandler((request, response, accessDeniedException) -> // this was added for role-based access control, so if a user is authenticated but does not have the required role to access a resource, it will return a response with status code 403 and no body, which is the standard response for a forbidden request.
+                            response.setStatus(HttpStatus.FORBIDDEN.value()));
+                });
         return http.build();
     }
     // to read more about the security architecture of spring boot see this: https://docs.spring.io/spring-security/reference/servlet/architecture.html

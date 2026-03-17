@@ -59,4 +59,8 @@ public class JwtService {
             return false;
         }
     }
+
+    public Role getRoleFromToken(String token) {
+        return Role.valueOf(getClaims(token).get("role", String.class));
+    }
 }

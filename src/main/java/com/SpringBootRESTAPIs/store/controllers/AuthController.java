@@ -1,5 +1,6 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
+import com.SpringBootRESTAPIs.store.config.JwtConfig;
 import com.SpringBootRESTAPIs.store.dtos.JwtResponse;
 import com.SpringBootRESTAPIs.store.dtos.LoginUserRequest;
 import com.SpringBootRESTAPIs.store.dtos.UserDto;
@@ -29,13 +30,14 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserMapper userMapper;
+    private final JwtConfig jwtConfig;
 
 
-    private static Cookie getCookie(String refreshToken) {
+    private Cookie getCookie(String refreshToken) {
         var cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true); // this will prevent the cookie from being accessed by JavaScript, which is a security measure to prevent cross-site scripting (XSS) attacks.
         cookie.setPath("/auth/refresh"); // this will make the cookie available only for the /auth/refresh endpoint, which is the endpoint that will be used to refresh the access token using the refresh token, this is a security measure to prevent the cookie from being sent with every request to the server, which can reduce the risk of the refresh token being leaked in case of a cross-site request forgery (CSRF) attack.
-        cookie.setMaxAge(604800); // 7 days in seconds
+        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration()); // 7 days in seconds
         cookie.setSecure(true); // this will make the cookie available only for secure connections (HTTPS), which is a security measure to prevent the cookie from being sent over an unencrypted connection, which can reduce the risk of the refresh token being leaked in
         return cookie;
     }

@@ -1,9 +1,11 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
+import com.SpringBootRESTAPIs.store.dtos.ErrorDto;
 import com.SpringBootRESTAPIs.store.exceptions.CartNotFoundException;
 import com.SpringBootRESTAPIs.store.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,13 +28,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    // handling error for when the cartId for checkout is not a UUID.
+    @ExceptionHandler({HttpMessageNotReadableException.class})
+    public ResponseEntity<ErrorDto> handleUnreadableMessage(){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("Invalid request body!"));
+    }
+
     @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleCartNotFoundException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Cart not found!"));
+    public ResponseEntity<ErrorDto> handleCartNotFoundException(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("Cart not found!"));
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleProductNotFoundException(){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Product not found in the cart!"));
+    public ResponseEntity<ErrorDto> handleProductNotFoundException(){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("Product not found in the cart!"));
     }
 }

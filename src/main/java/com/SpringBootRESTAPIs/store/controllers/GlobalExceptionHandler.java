@@ -1,6 +1,7 @@
 package com.SpringBootRESTAPIs.store.controllers;
 
 import com.SpringBootRESTAPIs.store.dtos.ErrorDto;
+import com.SpringBootRESTAPIs.store.exceptions.CartEmptyException;
 import com.SpringBootRESTAPIs.store.exceptions.CartNotFoundException;
 import com.SpringBootRESTAPIs.store.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -34,9 +35,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("Invalid request body!"));
     }
 
-    @ExceptionHandler(CartNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleCartNotFoundException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("Cart not found!"));
+    @ExceptionHandler({CartNotFoundException.class, CartEmptyException.class})
+    public ResponseEntity<ErrorDto> handleCartException(Exception ex){ // Exception is injected by spring when the exception is thrown, it will be passed to this method and we can use it to get the message of the exception and return it in the response body.
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto(ex.getMessage()));
     }
 
     @ExceptionHandler(ProductNotFoundException.class)

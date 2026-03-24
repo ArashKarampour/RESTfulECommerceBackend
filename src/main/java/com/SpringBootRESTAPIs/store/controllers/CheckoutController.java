@@ -48,21 +48,8 @@ public class CheckoutController {
             );
         }
 
-        var order = new Order();
-
-        order.setTotalPrice(cart.getTotalPrice());
-        order.setStatus(OrderStatus.PENDING);
-        order.setCustomer(authService.getCurrentUser());
-        cart.getCartItems().forEach(cartItem -> {
-            var orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setProduct(cartItem.getProduct());
-            orderItem.setTotalPrice(cartItem.getTotalPrice());
-            orderItem.setUnitPrice(cartItem.getProduct().getPrice());
-
-            order.getItems().add(orderItem);
-        });
+        var user = authService.getCurrentUser();
+        var order = Order.fromCart(cart, user);
 
         orderRepository.save(order);
         cartService.clearCart(cart.getId());

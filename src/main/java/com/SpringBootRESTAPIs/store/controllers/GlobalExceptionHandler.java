@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     // handling error for when the cartId for checkout is not a UUID.
-    @ExceptionHandler({HttpMessageNotReadableException.class})
+    @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorDto> handleUnreadableMessage(){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("Invalid request body!"));
     }

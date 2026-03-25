@@ -53,4 +53,8 @@ public class Order {
 
         return order;
     }
+
+    public boolean isForCustomer(User customer){
+        return this.customer.getId().equals(customer.getId());
+    }
 }

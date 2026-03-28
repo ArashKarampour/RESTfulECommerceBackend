@@ -20,7 +20,13 @@ git clone git@github.com:ArashKarampour/RESTfulECommerceBackend.git
 
 7- Structuring the application using clean, maintainable architecture
 
-8- Testing the APIs using Postman or similar tools to ensure they work as expected.
+8- Writing custom queries with @Query, JPQL, and native SQL.
+
+9- Leveraging productivity tools (like JPA Buddy or Flyway for Database Migrations Mangement) to quickly generate entities, repositories, and queries.
+
+11- Adding Swagger/OpenAPI documentation for the APIs to provide clear and interactive API documentation.
+
+12- Testing the APIs using Postman or similar tools to ensure they work as expected.
 
 ## What is under work?
 
